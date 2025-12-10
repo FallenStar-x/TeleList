@@ -1,95 +1,62 @@
 # TeleList
 
-A Windows desktop application for browsing game entities and quickly updating teleport coordinates. Built with C# and WPF.
+A Windows companion app for Speeder that simplifies teleporting to game entities/treasures by automatically updating INI coordinates.
 
-## What It Does
+## How It Works
 
-TeleList works alongside Speeder to streamline the teleportation workflow:
+1. **Speeder** dumps nearby entities to `entities.txt`
+2. **TeleList** loads the file and displays all entities in a browsable list
+3. **Select** an entity and TeleList updates your Speeder INI file with the coordinates
+4. **Speeder** reads the INI and teleports you to that location
+5. **Mark** unreachable treasures to revisit later
 
-1. **Read** entity data from dump files (entities.txt)
-2. **Browse** entities with filtering, sorting, and search
-3. **Select** a target entity
-4. **Auto-update** INI file with coordinates for teleportation
-5. **Track** skipped treasure (ones you couldn't reach)
+## Setup
 
-## Features
+### 1. Speeder Script
 
-- **Entity Browsing**: View entities with type, location, and distance information
-- **Filtering & Sorting**: Search by name, filter by type, sort by various criteria
-- **Distance Calculation**: Set a reference entity and calculate distances from it
-- **Skip Tracking**: Mark treasure as skipped (displayed in red) to track ones you couldn't reach
-- **INI Integration**: Automatically update teleport coordinates in INI files
-- **Global Hotkeys**: Navigate and mark entities without focusing the app
-- **Auto-Refresh**: Automatically reload when the entity file changes
-- **Dark Theme**: Modern dark UI
-
-## Requirements
-
-- Windows 10/11 (64-bit)
-- .NET 8.0 SDK (for building)
-
-## Building
-
-### Prerequisites
-
-1. Install [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-
-### Build Commands
-
-```bash
-# Clone the repository
-git clone https://github.com/FallenStar-x/TeleList.git
-cd TeleList
-
-# Build
-dotnet build
-
-# Run
-dotnet run
-
-# Publish self-contained executable
-dotnet publish -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-```
-
-The published executable will be in `bin/Release/net8.0-windows/win-x64/publish/`
-
-## Usage
-
-### First Run
-
-1. Launch `TeleList.exe`
-2. Click **Load File** to select your entities file
-3. Optionally configure an INI file for coordinate updates
-
-### Entity File Format
-
-The application expects entity files with blocks separated by `----------------`:
+Your Speeder script must include this variable to dump entities:
 
 ```
-Entity type: Npc_Guard_001
-Location: -123.45,67.89,-234.56
-Distance: 45.67
-----------------
-Entity type: Treasurebox_42
-Location: -200.00,50.00,-100.00
-Distance: 120.50
-----------------
+EntityFileName=entities.txt
 ```
 
-### INI File Format
+### 2. Speeder INI File
 
-For coordinate updates, the INI file should contain:
+Your Speeder INI must contain this function for TeleList to update:
 
 ```ini
 [fRandomLocation]
-keys=store -v TELEPORTX -w "-123.456"
-keys2=store -v TELEPORTY -w "67.89"
-keys3=store -v TELEPORTZ -w "-234.56"
+keys=store -v TELEPORTX -w "-3508.010000"
+keys2=store -v TELEPORTY -w "190.278000"
+keys3=store -v TELEPORTZ -w "-1201.190000"
 ```
+
+### 3. TeleList Configuration
+
+1. Launch `TeleList.exe`
+2. Click **Load File** and select your `entities.txt`
+3. Click **Browse** next to INI Path and select your Speeder INI file
+4. Enable **Auto Update INI** to automatically update coordinates when selecting entities
+
+## Usage
+
+### Basic Workflow
+
+1. In-game, use Speeder to dump entities to `entities.txt`
+2. TeleList auto-reloads the file (if Auto Refresh is enabled)
+3. Browse/search the entity list
+4. Click an entity or use hotkeys to navigate
+5. Use Speeder's teleport function to teleport to the coordinates
+6. Mark treasures you couldn't reach with the Skip hotkey
+7. Move to a new location and repeat
+
+### Sharing Entity Files
+
+You can load entity files created by other players containing pre-mapped coordinates instead of dumping your own.
 
 ### Hotkeys
 
-Default global hotkeys (configurable in the app):
+Default global hotkeys (configurable):
 
 | Action | Default Key |
 |--------|-------------|
@@ -100,35 +67,27 @@ Default global hotkeys (configurable in the app):
 | Update INI | Ctrl+U |
 | Clear Entities | Ctrl+Delete |
 
-## Project Structure
+## Features
 
+- **Auto Refresh**: Automatically reloads when `entities.txt` changes
+- **Skip Tracking**: Mark treasures as skipped (red) to track unreachable ones
+- **Distance Sorting**: Sort by distance from a reference entity
+- **Search & Filter**: Find specific entity types quickly
+- **Global Hotkeys**: Control the app without switching windows
+
+## Requirements
+
+- Windows 10/11 (64-bit)
+
+## Building from Source
+
+```bash
+git clone https://github.com/FallenStar-x/TeleList.git
+cd TeleList
+dotnet build
+dotnet run
 ```
-TeleList/
-├── App.xaml                    # Application entry point
-├── MainWindow.xaml/.cs         # Main window UI and logic
-├── Models/
-│   └── Entity.cs               # Entity data model
-├── ViewModels/
-│   └── EntityViewModel.cs      # Entity view model for DataGrid
-├── Services/
-│   ├── EntityParser.cs         # Parses entity files
-│   ├── GlobalHotkeyManager.cs  # Win32 global hotkey handling
-│   ├── INICoordinateUpdater.cs # Updates INI coordinates
-│   └── SettingsManager.cs      # JSON settings persistence
-├── Dialogs/
-│   └── HotkeyConfigDialog.xaml # Hotkey configuration dialog
-└── Themes/
-    └── DarkTheme.xaml          # Dark theme resources
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add your feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Create a Pull Request
 
 ## License
 
-This project is open source. Feel free to use and modify as needed.
+Open source. Feel free to use and modify.
