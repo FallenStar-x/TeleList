@@ -76,7 +76,11 @@ namespace TeleList.Services
 
                 if (updatesMade.Count == 0)
                 {
-                    return (false, "No coordinate patterns found in the INI file");
+                    return (false, "No coordinate patterns found in the INI file.\n\n" +
+                        "Expected format (one per line):\n" +
+                        "keys=store -v TELEPORTX -w \"0.0\"\n" +
+                        "keys2=store -v TELEPORTY -w \"0.0\"\n" +
+                        "keys3=store -v TELEPORTZ -w \"0.0\"");
                 }
 
                 if (content == originalContent)
