@@ -17,6 +17,8 @@
     <Color x:Key="ErrorColor">#f14c4c</Color>
     <Color x:Key="MarkedColor">#ff4444</Color>
     <Color x:Key="MarkedBgColor">#3d1f1f</Color>
+    <Color x:Key="LastUsedColor">#4ec9b0</Color>
+    <Color x:Key="LastUsedBgColor">#1f3d35</Color>
     <Color x:Key="TreeSelectedBgColor">#094771</Color>
 
     <!-- Brushes -->
@@ -35,6 +37,8 @@
     <SolidColorBrush x:Key="Error" Color="{StaticResource ErrorColor}"/>
     <SolidColorBrush x:Key="Marked" Color="{StaticResource MarkedColor}"/>
     <SolidColorBrush x:Key="MarkedBg" Color="{StaticResource MarkedBgColor}"/>
+    <SolidColorBrush x:Key="LastUsed" Color="{StaticResource LastUsedColor}"/>
+    <SolidColorBrush x:Key="LastUsedBg" Color="{StaticResource LastUsedBgColor}"/>
     <SolidColorBrush x:Key="TreeSelectedBg" Color="{StaticResource TreeSelectedBgColor}"/>
 
     <!-- Button Style -->
@@ -330,6 +334,10 @@
             <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Background" Value="{StaticResource TreeSelectedBg}"/>
             </Trigger>
+            <DataTrigger Binding="{Binding IsLastUsed}" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource LastUsed}"/>
+                <Setter Property="Background" Value="{StaticResource LastUsedBg}"/>
+            </DataTrigger>
             <DataTrigger Binding="{Binding IsMarked}" Value="True">
                 <Setter Property="Foreground" Value="{StaticResource Marked}"/>
                 <Setter Property="Background" Value="{StaticResource MarkedBg}"/>

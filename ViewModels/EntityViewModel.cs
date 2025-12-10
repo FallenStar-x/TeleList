@@ -9,6 +9,7 @@ namespace TeleList.ViewModels
     public class EntityViewModel : INotifyPropertyChanged
     {
         private bool _isMarked;
+        private bool _isLastUsed;
 
         public string EntityType { get; set; } = string.Empty;
         public string BaseType { get; set; } = string.Empty;
@@ -20,7 +21,7 @@ namespace TeleList.ViewModels
         public string CalcDistance { get; set; } = string.Empty;
 
         /// <summary>
-        /// Whether this entity is marked (displayed in red).
+        /// Whether this entity is marked as skipped (displayed in red).
         /// Notifies UI when changed.
         /// </summary>
         public bool IsMarked
@@ -30,6 +31,20 @@ namespace TeleList.ViewModels
             {
                 _isMarked = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsMarked)));
+            }
+        }
+
+        /// <summary>
+        /// Whether this entity was the last one used to update INI coordinates.
+        /// Displayed with a distinct highlight color.
+        /// </summary>
+        public bool IsLastUsed
+        {
+            get => _isLastUsed;
+            set
+            {
+                _isLastUsed = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLastUsed)));
             }
         }
 

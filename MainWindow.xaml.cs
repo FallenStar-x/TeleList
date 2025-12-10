@@ -710,7 +710,8 @@ namespace TeleList
                     Z = entity.Z,
                     Distance = entity.Distance,
                     CalcDistance = calcDist,
-                    IsMarked = _markedEntities.Contains(entityKey)
+                    IsMarked = _markedEntities.Contains(entityKey),
+                    IsLastUsed = entityKey == _settings.LastUsedEntityKey
                 });
             }
 
@@ -887,6 +888,24 @@ namespace TeleList
 
                 if (success)
                 {
+                    // Update last used entity tracking
+                    var entityKey = selected.GetEntityKey();
+
+                    // Clear previous last used marker
+                    foreach (var entity in _filteredEntities)
+                    {
+                        if (entity.IsLastUsed)
+                        {
+                            entity.IsLastUsed = false;
+                        }
+                    }
+
+                    // Set new last used marker
+                    selected.IsLastUsed = true;
+                    _settings.LastUsedEntityKey = entityKey;
+                    SettingsManager.SaveSettings(_settings);
+
+                    EntityGrid.Items.Refresh();
                     RefreshIniCoordinates();
                     if (!silent)
                     {

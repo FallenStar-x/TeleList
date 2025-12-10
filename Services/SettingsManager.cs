@@ -70,6 +70,10 @@ namespace TeleList.Services
 
         [JsonPropertyName("suppress_clear_skipped_warning")]
         public bool SuppressClearSkippedWarning { get; set; } = false;
+
+        // Last used entity tracking
+        [JsonPropertyName("last_used_entity_key")]
+        public string LastUsedEntityKey { get; set; } = string.Empty;
     }
 
     /// <summary>
