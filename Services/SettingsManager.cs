@@ -63,6 +63,13 @@ namespace TeleList.Services
 
         [JsonPropertyName("hotkey_clear")]
         public string HotkeyClear { get; set; } = "ctrl+delete";
+
+        // Warning suppression settings
+        [JsonPropertyName("suppress_clear_entities_warning")]
+        public bool SuppressClearEntitiesWarning { get; set; } = false;
+
+        [JsonPropertyName("suppress_clear_skipped_warning")]
+        public bool SuppressClearSkippedWarning { get; set; } = false;
     }
 
     /// <summary>

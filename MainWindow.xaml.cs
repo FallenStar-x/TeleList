@@ -445,6 +445,34 @@ namespace TeleList
 
         private void ClearEntities_Click(object sender, RoutedEventArgs e)
         {
+            bool shiftHeld = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+
+            if (shiftHeld || !_settings.SuppressClearEntitiesWarning)
+            {
+                var result = ShowConfirmationDialog(
+                    "Clear Entities File",
+                    "This will delete all contents of the entities file:\n" +
+                    $"{_currentFilepath}\n\n" +
+                    "The file will be emptied and the entity list will be cleared.\n" +
+                    "This action cannot be undone.",
+                    out bool dontShowAgain);
+
+                if (result != MessageBoxResult.Yes)
+                    return;
+
+                if (dontShowAgain && !shiftHeld)
+                {
+                    _settings.SuppressClearEntitiesWarning = true;
+                    SettingsManager.SaveSettings(_settings);
+                }
+                else if (shiftHeld && _settings.SuppressClearEntitiesWarning)
+                {
+                    // Shift+Click resets the "don't show again"
+                    _settings.SuppressClearEntitiesWarning = false;
+                    SettingsManager.SaveSettings(_settings);
+                }
+            }
+
             ClearEntitiesFile();
         }
 
@@ -958,6 +986,33 @@ namespace TeleList
 
         private void ClearMarks_Click(object sender, RoutedEventArgs e)
         {
+            bool shiftHeld = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+
+            if (shiftHeld || !_settings.SuppressClearSkippedWarning)
+            {
+                var result = ShowConfirmationDialog(
+                    "Clear Skipped",
+                    $"This will clear all {_markedEntities.Count} skipped entities.\n\n" +
+                    "All red-marked items will be unmarked.\n" +
+                    "This action cannot be undone.",
+                    out bool dontShowAgain);
+
+                if (result != MessageBoxResult.Yes)
+                    return;
+
+                if (dontShowAgain && !shiftHeld)
+                {
+                    _settings.SuppressClearSkippedWarning = true;
+                    SettingsManager.SaveSettings(_settings);
+                }
+                else if (shiftHeld && _settings.SuppressClearSkippedWarning)
+                {
+                    // Shift+Click resets the "don't show again"
+                    _settings.SuppressClearSkippedWarning = false;
+                    SettingsManager.SaveSettings(_settings);
+                }
+            }
+
             _markedEntities.Clear();
             _settings.MarkedEntities.Clear();
             SettingsManager.SaveSettings(_settings);
@@ -975,6 +1030,88 @@ namespace TeleList
         private void UpdateMarkedCount()
         {
             MarkedCountLabel.Text = $"Skipped: {_markedEntities.Count}";
+        }
+
+        private MessageBoxResult ShowConfirmationDialog(string title, string message, out bool dontShowAgain)
+        {
+            dontShowAgain = false;
+
+            // Create a custom dialog window
+            var dialog = new Window
+            {
+                Title = title,
+                Width = 420,
+                Height = 220,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ResizeMode = ResizeMode.NoResize,
+                Background = (System.Windows.Media.Brush)FindResource("BgPrimary"),
+                WindowStyle = WindowStyle.ToolWindow
+            };
+
+            var grid = new Grid { Margin = new Thickness(15) };
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            var messageText = new TextBlock
+            {
+                Text = message,
+                TextWrapping = TextWrapping.Wrap,
+                Foreground = (System.Windows.Media.Brush)FindResource("FgPrimary"),
+                FontSize = 12,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+            Grid.SetRow(messageText, 0);
+            grid.Children.Add(messageText);
+
+            var checkBox = new CheckBox
+            {
+                Content = "Don't show this again (Shift+Click to re-enable)",
+                Foreground = (System.Windows.Media.Brush)FindResource("FgSecondary"),
+                FontSize = 11,
+                Margin = new Thickness(0, 0, 0, 15)
+            };
+            Grid.SetRow(checkBox, 1);
+            grid.Children.Add(checkBox);
+
+            var buttonPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right
+            };
+            Grid.SetRow(buttonPanel, 2);
+
+            MessageBoxResult result = MessageBoxResult.No;
+
+            var yesButton = new Button
+            {
+                Content = "Yes, Clear",
+                Width = 90,
+                Height = 28,
+                Margin = new Thickness(0, 0, 10, 0),
+                Style = (Style)FindResource("DarkButton")
+            };
+            yesButton.Click += (s, e) => { result = MessageBoxResult.Yes; dialog.Close(); };
+
+            var noButton = new Button
+            {
+                Content = "Cancel",
+                Width = 90,
+                Height = 28,
+                Style = (Style)FindResource("SecondaryButton")
+            };
+            noButton.Click += (s, e) => { result = MessageBoxResult.No; dialog.Close(); };
+
+            buttonPanel.Children.Add(yesButton);
+            buttonPanel.Children.Add(noButton);
+            grid.Children.Add(buttonPanel);
+
+            dialog.Content = grid;
+            dialog.ShowDialog();
+
+            dontShowAgain = checkBox.IsChecked ?? false;
+            return result;
         }
 
         #endregion
