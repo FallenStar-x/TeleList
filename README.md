@@ -4,7 +4,7 @@ A Windows desktop application for browsing game entities and quickly updating te
 
 ## What It Does
 
-TeleList works alongside entity dumping tools (like Speeder) to streamline the teleportation workflow:
+TeleList works alongside Speeder to streamline the teleportation workflow:
 
 1. **Read** entity data from dump files (entities.txt)
 2. **Browse** entities with filtering, sorting, and search
@@ -38,7 +38,7 @@ TeleList works alongside entity dumping tools (like Speeder) to streamline the t
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/TeleList.git
+git clone https://github.com/FallenStar-x/TeleList.git
 cd TeleList
 
 # Build
