@@ -108,8 +108,10 @@ namespace TeleList.Services
 
                             // Ensure lists are never null
                             settings.MarkedEntities ??= new List<string>();
+                            settings.RecentEntities ??= new List<string>();
 
                             // Ensure strings are never null (use empty string as default for paths)
+                            settings.LastUsedEntityKey ??= string.Empty;
                             settings.IniFilePath ??= string.Empty;
                             settings.EntitiesFilePath ??= string.Empty;
                             settings.WindowGeometry ??= "1200x750";

@@ -448,12 +448,18 @@ namespace TeleList
         {
             bool shiftHeld = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
 
+            if (string.IsNullOrEmpty(_currentFilepath))
+            {
+                StatusLabel.Text = "No entities file loaded";
+                return;
+            }
+
             if (shiftHeld || !_settings.SuppressClearEntitiesWarning)
             {
                 var result = ShowConfirmationDialog(
                     "Clear Entities File",
                     "This will delete all contents of the entities file:\n" +
-                    $"{_currentFilepath}\n\n" +
+                    $"{Path.GetFileName(_currentFilepath)}\n\n" +
                     "The file will be emptied and the entity list will be cleared.\n" +
                     "This action cannot be undone.",
                     out bool dontShowAgain);
@@ -1119,14 +1125,21 @@ namespace TeleList
             if (RecentListBox.SelectedItem is ListBoxItem selectedItem && selectedItem.Tag is string entityKey)
             {
                 // Find and select the entity in the grid
+                bool found = false;
                 foreach (var entity in _filteredEntities)
                 {
                     if (entity.GetEntityKey() == entityKey)
                     {
                         EntityGrid.SelectedItem = entity;
                         EntityGrid.ScrollIntoView(entity);
+                        found = true;
                         break;
                     }
+                }
+
+                if (!found)
+                {
+                    StatusLabel.Text = "Entity not visible (filtered out or not in current file)";
                 }
 
                 // Clear selection to allow re-clicking the same item
