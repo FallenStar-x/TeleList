@@ -1,0 +1,287 @@
+<Window x:Class="TeleList.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TeleList"
+        MinWidth="900" MinHeight="550"
+        Background="{StaticResource BgPrimary}"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Toolbar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Load File" Style="{StaticResource DarkButton}" Click="LoadFile_Click" Margin="0,0,5,0"/>
+            <Button Content="Reload" Style="{StaticResource SecondaryButton}" Click="ReloadFile_Click" Margin="0,0,5,0"/>
+            <Button Content="Clear Entities" Style="{StaticResource SecondaryButton}" Click="ClearEntities_Click" Margin="0,0,5,0"/>
+            <Button Content="Clear Marks" Style="{StaticResource SecondaryButton}" Click="ClearMarks_Click" Margin="0,0,10,0"/>
+
+            <CheckBox x:Name="AutoRefreshCheckBox"
+                      Content="Auto-Refresh"
+                      Style="{StaticResource DarkCheckBox}"
+                      VerticalAlignment="Center"
+                      Margin="10,0,5,0"
+                      Checked="AutoRefresh_Changed"
+                      Unchecked="AutoRefresh_Changed"/>
+
+            <CheckBox x:Name="GlobalHotkeysCheckBox"
+                      Content="Global Hotkeys"
+                      Style="{StaticResource DarkCheckBox}"
+                      VerticalAlignment="Center"
+                      Margin="5,0,10,0"
+                      Checked="GlobalHotkeys_Changed"
+                      Unchecked="GlobalHotkeys_Changed"/>
+
+            <TextBlock x:Name="FilePathLabel"
+                       Text="No file loaded"
+                       Style="{StaticResource MutedLabel}"
+                       VerticalAlignment="Center"
+                       Margin="10,0,0,0"/>
+
+            <TextBlock x:Name="CountLabel"
+                       Text=""
+                       Foreground="{StaticResource FgPrimary}"
+                       FontFamily="Segoe UI"
+                       FontSize="12"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Right"
+                       Margin="20,0,0,0"/>
+        </StackPanel>
+
+        <!-- Content Area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel - Filters -->
+            <Border Grid.Column="0" Background="{StaticResource BgSecondary}" CornerRadius="3" Margin="0,0,10,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <!-- Search/Filter Section -->
+                        <TextBlock Text="Search / Filter" Style="{StaticResource TitleLabel}"/>
+                        <TextBox x:Name="SearchBox"
+                                 Style="{StaticResource DarkTextBox}"
+                                 Margin="0,0,0,5"
+                                 TextChanged="SearchBox_TextChanged"/>
+                        <TextBlock Text="Type to filter (e.g., 'Npc', 'Player', 'Acc')"
+                                   Style="{StaticResource MutedLabel}"
+                                   Margin="0,0,0,15"/>
+
+                        <!-- Entity Type Filter -->
+                        <TextBlock Text="Entity Type Filter" Style="{StaticResource TitleLabel}"/>
+                        <ComboBox x:Name="TypeFilterCombo"
+                                  Style="{StaticResource DarkComboBox}"
+                                  Margin="0,0,0,15"
+                                  SelectionChanged="TypeFilter_Changed"/>
+
+                        <!-- Sort Section -->
+                        <TextBlock Text="Sort By" Style="{StaticResource TitleLabel}"/>
+                        <ComboBox x:Name="SortCombo"
+                                  Style="{StaticResource DarkComboBox}"
+                                  Margin="0,0,0,15"
+                                  SelectionChanged="Sort_Changed">
+                            <ComboBoxItem Content="Distance (Ascending)" IsSelected="True"/>
+                            <ComboBoxItem Content="Distance (Descending)"/>
+                            <ComboBoxItem Content="Entity Type (A-Z)"/>
+                            <ComboBoxItem Content="Entity Type (Z-A)"/>
+                            <ComboBoxItem Content="Location X (Ascending)"/>
+                            <ComboBoxItem Content="Location X (Descending)"/>
+                            <ComboBoxItem Content="Location Y (Ascending)"/>
+                            <ComboBoxItem Content="Location Y (Descending)"/>
+                            <ComboBoxItem Content="Location Z (Ascending)"/>
+                            <ComboBoxItem Content="Location Z (Descending)"/>
+                        </ComboBox>
+
+                        <!-- Reference Entity Section -->
+                        <TextBlock Text="Reference Entity" Style="{StaticResource TitleLabel}"/>
+                        <TextBlock Text="Calculate distance from this entity"
+                                   Style="{StaticResource MutedLabel}"
+                                   Margin="0,0,0,5"/>
+                        <ComboBox x:Name="ReferenceCombo"
+                                  Style="{StaticResource DarkComboBox}"
+                                  IsEditable="True"
+                                  Margin="0,0,0,5"/>
+                        <Button Content="Set as Reference"
+                                Style="{StaticResource DarkButton}"
+                                Click="SetReference_Click"
+                                Margin="0,0,0,5"/>
+                        <Button Content="Use Selected Entity"
+                                Style="{StaticResource SecondaryButton}"
+                                Click="UseSelected_Click"
+                                Margin="0,0,0,5"/>
+                        <TextBlock x:Name="ReferenceInfoLabel"
+                                   Text="Reference: PlayerAvatar_0"
+                                   Style="{StaticResource MutedLabel}"/>
+
+                        <Separator Style="{StaticResource DarkSeparator}"/>
+
+                        <!-- INI File Settings Section -->
+                        <TextBlock Text="INI File Settings" Style="{StaticResource TitleLabel}"/>
+                        <TextBlock Text="Update teleport coordinates in INI file"
+                                   Style="{StaticResource MutedLabel}"
+                                   Margin="0,0,0,5"/>
+                        <TextBox x:Name="IniPathBox"
+                                 Style="{StaticResource DarkTextBox}"
+                                 FontSize="10"
+                                 Margin="0,0,0,5"/>
+                        <Button Content="Browse INI File"
+                                Style="{StaticResource SecondaryButton}"
+                                Click="BrowseIni_Click"
+                                Margin="0,0,0,5"/>
+                        <TextBlock x:Name="IniCoordsLabel"
+                                   Text="Current: Not loaded"
+                                   Style="{StaticResource MutedLabel}"
+                                   Margin="0,0,0,5"/>
+                        <Button Content="Refresh INI Coords"
+                                Style="{StaticResource SecondaryButton}"
+                                Click="RefreshIni_Click"
+                                Margin="0,0,0,5"/>
+                        <Button Content="Update INI with Selected"
+                                Style="{StaticResource SuccessButton}"
+                                Click="UpdateIni_Click"
+                                Margin="0,0,0,5"/>
+                        <CheckBox x:Name="AutoUpdateIniCheckBox"
+                                  Content="Auto Update INI on Navigate"
+                                  Style="{StaticResource DarkCheckBox}"
+                                  Checked="AutoUpdateIni_Changed"
+                                  Unchecked="AutoUpdateIni_Changed"
+                                  Margin="0,0,0,10"/>
+
+                        <Separator Style="{StaticResource DarkSeparator}"/>
+
+                        <!-- Hotkey Settings Section -->
+                        <TextBlock Text="Hotkey Settings" Style="{StaticResource TitleLabel}"/>
+                        <TextBlock Text="Click to rebind (global when enabled)"
+                                   Style="{StaticResource MutedLabel}"
+                                   Margin="0,0,0,5"/>
+
+                        <Grid Margin="0,0,0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Next Item:" Foreground="{StaticResource FgSecondary}" VerticalAlignment="Center"/>
+                            <Button x:Name="HotkeyNextBtn" Grid.Column="1" Style="{StaticResource SecondaryButton}"
+                                    Foreground="{StaticResource Accent}" Click="ConfigureHotkey_Click" Tag="HotkeyNext"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Previous Item:" Foreground="{StaticResource FgSecondary}" VerticalAlignment="Center"/>
+                            <Button x:Name="HotkeyPrevBtn" Grid.Column="1" Style="{StaticResource SecondaryButton}"
+                                    Foreground="{StaticResource Accent}" Click="ConfigureHotkey_Click" Tag="HotkeyPrev"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Mark Done:" Foreground="{StaticResource FgSecondary}" VerticalAlignment="Center"/>
+                            <Button x:Name="HotkeyMarkBtn" Grid.Column="1" Style="{StaticResource SecondaryButton}"
+                                    Foreground="{StaticResource Accent}" Click="ConfigureHotkey_Click" Tag="HotkeyMark"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Reload File:" Foreground="{StaticResource FgSecondary}" VerticalAlignment="Center"/>
+                            <Button x:Name="HotkeyReloadBtn" Grid.Column="1" Style="{StaticResource SecondaryButton}"
+                                    Foreground="{StaticResource Accent}" Click="ConfigureHotkey_Click" Tag="HotkeyReload"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Update INI:" Foreground="{StaticResource FgSecondary}" VerticalAlignment="Center"/>
+                            <Button x:Name="HotkeyUpdateIniBtn" Grid.Column="1" Style="{StaticResource SecondaryButton}"
+                                    Foreground="{StaticResource Accent}" Click="ConfigureHotkey_Click" Tag="HotkeyUpdateIni"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Clear Entities:" Foreground="{StaticResource FgSecondary}" VerticalAlignment="Center"/>
+                            <Button x:Name="HotkeyClearBtn" Grid.Column="1" Style="{StaticResource SecondaryButton}"
+                                    Foreground="{StaticResource Accent}" Click="ConfigureHotkey_Click" Tag="HotkeyClear"/>
+                        </Grid>
+
+                        <Separator Style="{StaticResource DarkSeparator}"/>
+
+                        <!-- Quick Filters -->
+                        <TextBlock Text="Quick Filters" Style="{StaticResource TitleLabel}"/>
+                        <Button Content="Show NPCs" Style="{StaticResource SecondaryButton}" Click="QuickFilter_Click" Tag="Npc" Margin="0,0,0,3"/>
+                        <Button Content="Show Players" Style="{StaticResource SecondaryButton}" Click="QuickFilter_Click" Tag="Player" Margin="0,0,0,3"/>
+                        <Button Content="Show Weapons" Style="{StaticResource SecondaryButton}" Click="QuickFilter_Click" Tag="Weapon" Margin="0,0,0,3"/>
+                        <Button Content="Show Accessories" Style="{StaticResource SecondaryButton}" Click="QuickFilter_Click" Tag="Accessory" Margin="0,0,0,3"/>
+                        <Button Content="Show Animals" Style="{StaticResource SecondaryButton}" Click="QuickFilter_Click" Tag="Animal" Margin="0,0,0,3"/>
+                        <Button Content="Clear Filter" Style="{StaticResource SecondaryButton}" Click="QuickFilter_Click" Tag="" Margin="0,0,0,3"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Right Panel - Entity Table -->
+            <DataGrid x:Name="EntityGrid"
+                      Grid.Column="1"
+                      Style="{StaticResource DarkDataGrid}"
+                      ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeader}"
+                      CellStyle="{StaticResource DarkDataGridCell}"
+                      RowStyle="{StaticResource DarkDataGridRow}"
+                      SelectionChanged="EntityGrid_SelectionChanged"
+                      MouseDoubleClick="EntityGrid_DoubleClick"
+                      MouseRightButtonUp="EntityGrid_RightClick"
+                      IsReadOnly="True">
+                <DataGrid.ContextMenu>
+                    <ContextMenu Style="{StaticResource DarkContextMenu}">
+                        <MenuItem Header="Copy Entity Type" Click="CopyEntityType_Click" Style="{StaticResource DarkMenuItem}"/>
+                        <MenuItem Header="Copy Location" Click="CopyLocation_Click" Style="{StaticResource DarkMenuItem}"/>
+                        <MenuItem Header="Copy All Info" Click="CopyAllInfo_Click" Style="{StaticResource DarkMenuItem}"/>
+                        <Separator Background="{StaticResource BorderBrush}"/>
+                        <MenuItem Header="Toggle Mark (Red)" Click="ToggleMark_Click" Style="{StaticResource DarkMenuItem}"/>
+                        <Separator Background="{StaticResource BorderBrush}"/>
+                        <MenuItem Header="Set as Reference" Click="UseSelected_Click" Style="{StaticResource DarkMenuItem}"/>
+                        <MenuItem Header="Find Closest Entities" Click="FindClosest_Click" Style="{StaticResource DarkMenuItem}"/>
+                        <Separator Background="{StaticResource BorderBrush}"/>
+                        <MenuItem Header="Update INI Coordinates" Click="UpdateIni_Click" Style="{StaticResource DarkMenuItem}" Foreground="{StaticResource Success}"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Entity Type" Binding="{Binding EntityType}" Width="350" MinWidth="200"/>
+                    <DataGridTextColumn Header="Base Type" Binding="{Binding BaseType}" Width="120" MinWidth="80"/>
+                    <DataGridTextColumn Header="Location (X, Y, Z)" Binding="{Binding LocationStr}" Width="200" MinWidth="150"/>
+                    <DataGridTextColumn Header="Original Distance" Binding="{Binding Distance, StringFormat=F2}" Width="120" MinWidth="80"/>
+                    <DataGridTextColumn Header="Distance from Ref" Binding="{Binding CalcDistance}" Width="120" MinWidth="80"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="{StaticResource BgSecondary}" CornerRadius="3" Padding="10,5" Margin="0,10,0,0">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="StatusLabel"
+                               Text="Ready"
+                               Style="{StaticResource MutedLabel}"/>
+                    <TextBlock x:Name="MarkedCountLabel"
+                               Text="Marked: 0"
+                               Style="{StaticResource MutedLabel}"
+                               Margin="20,0,0,0"/>
+                </StackPanel>
+                <TextBlock Text="Double-click: Copy | Right-click: Menu | Global hotkeys active"
+                           Style="{StaticResource MutedLabel}"
+                           HorizontalAlignment="Right"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,58 @@
+<Window x:Class="TeleList.Dialogs.HotkeyConfigDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Configure Hotkey"
+        Width="350" Height="180"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#1e1e1e"
+        ShowInTaskbar="False">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Instructions -->
+        <TextBlock Grid.Row="0"
+                   Text="{Binding InstructionText}"
+                   Foreground="#ffffff"
+                   FontFamily="Segoe UI"
+                   FontSize="12"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,15"/>
+
+        <!-- Key display -->
+        <Border Grid.Row="1"
+                Background="#2d2d30"
+                CornerRadius="3"
+                Padding="15,10"
+                Margin="0,0,0,15">
+            <TextBlock Text="{Binding KeyDisplay}"
+                       Foreground="#0078d4"
+                       FontFamily="Segoe UI"
+                       FontSize="14"
+                       FontWeight="SemiBold"
+                       TextAlignment="Center"/>
+        </Border>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center">
+            <Button Content="Cancel"
+                    Click="Cancel_Click"
+                    Background="#2d2d30"
+                    Foreground="#ffffff"
+                    BorderThickness="0"
+                    Padding="20,8"
+                    Cursor="Hand"
+                    FontFamily="Segoe UI"
+                    FontSize="12"/>
+        </StackPanel>
+    </Grid>
+</Window>
