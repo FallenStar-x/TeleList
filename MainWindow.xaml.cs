@@ -106,6 +106,7 @@ namespace TeleList
 
             RefreshIniCoordinates();
             UpdateMarkedCount();
+            UpdateRecentList();
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -903,7 +904,17 @@ namespace TeleList
                     // Set new last used marker
                     selected.IsLastUsed = true;
                     _settings.LastUsedEntityKey = entityKey;
+
+                    // Add to recent history (remove if already exists, add to front, keep max 10)
+                    _settings.RecentEntities.Remove(entityKey);
+                    _settings.RecentEntities.Insert(0, entityKey);
+                    if (_settings.RecentEntities.Count > 10)
+                    {
+                        _settings.RecentEntities.RemoveRange(10, _settings.RecentEntities.Count - 10);
+                    }
+
                     SettingsManager.SaveSettings(_settings);
+                    UpdateRecentList();
 
                     EntityGrid.Items.Refresh();
                     RefreshIniCoordinates();
@@ -1049,6 +1060,78 @@ namespace TeleList
         private void UpdateMarkedCount()
         {
             MarkedCountLabel.Text = $"Skipped: {_markedEntities.Count}";
+        }
+
+        #endregion
+
+        #region Recent History
+
+        private void UpdateRecentList()
+        {
+            RecentListBox.Items.Clear();
+            var count = 0;
+
+            foreach (var entityKey in _settings.RecentEntities)
+            {
+                // Extract just the entity type from the key (format: "EntityType|X,Y,Z")
+                var parts = entityKey.Split('|');
+                var displayName = parts.Length > 0 ? parts[0] : entityKey;
+
+                // Truncate if too long
+                if (displayName.Length > 35)
+                {
+                    displayName = displayName.Substring(0, 32) + "...";
+                }
+
+                var item = new ListBoxItem
+                {
+                    Content = $"{count + 1}. {displayName}",
+                    Tag = entityKey,
+                    FontSize = 11,
+                    Foreground = count == 0
+                        ? (System.Windows.Media.Brush)FindResource("LastUsed")
+                        : (System.Windows.Media.Brush)FindResource("FgSecondary")
+                };
+
+                RecentListBox.Items.Add(item);
+                count++;
+            }
+
+            RecentCountLabel.Text = $"({count})";
+        }
+
+        private void ToggleRecent_Click(object sender, RoutedEventArgs e)
+        {
+            if (RecentListBox.Visibility == Visibility.Visible)
+            {
+                RecentListBox.Visibility = Visibility.Collapsed;
+                RecentToggleBtn.Content = "▶";
+            }
+            else
+            {
+                RecentListBox.Visibility = Visibility.Visible;
+                RecentToggleBtn.Content = "▼";
+            }
+        }
+
+        private void RecentListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (RecentListBox.SelectedItem is ListBoxItem selectedItem && selectedItem.Tag is string entityKey)
+            {
+                // Find and select the entity in the grid
+                foreach (var entity in _filteredEntities)
+                {
+                    if (entity.GetEntityKey() == entityKey)
+                    {
+                        EntityGrid.SelectedItem = entity;
+                        EntityGrid.ScrollIntoView(entity);
+                        break;
+                    }
+                }
+
+                // Clear selection to allow re-clicking the same item
+                RecentListBox.SelectedItem = null;
+            }
         }
 
         private MessageBoxResult ShowConfirmationDialog(string title, string message, out bool dontShowAgain)

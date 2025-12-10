@@ -227,6 +227,44 @@
                         <Button Content="Show Accessories" Style="{StaticResource SecondaryButton}" Click="QuickFilter_Click" Tag="Accessory" Margin="0,0,0,3"/>
                         <Button Content="Show Animals" Style="{StaticResource SecondaryButton}" Click="QuickFilter_Click" Tag="Animal" Margin="0,0,0,3"/>
                         <Button Content="Clear Filter" Style="{StaticResource SecondaryButton}" Click="QuickFilter_Click" Tag="" Margin="0,0,0,3"/>
+
+                        <Separator Style="{StaticResource DarkSeparator}"/>
+
+                        <!-- Recent History -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="Recent" Style="{StaticResource TitleLabel}" VerticalAlignment="Center" Margin="0"/>
+                            <TextBlock x:Name="RecentCountLabel" Text="(0)" Style="{StaticResource MutedLabel}" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                            <Button x:Name="RecentToggleBtn" Content="▼" Style="{StaticResource SecondaryButton}"
+                                    Click="ToggleRecent_Click" Width="24" Height="20" Padding="0" Margin="10,0,0,0"
+                                    FontSize="10" ToolTip="Show/Hide recent history"/>
+                        </StackPanel>
+                        <ListBox x:Name="RecentListBox"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="{StaticResource FgSecondary}"
+                                 MaxHeight="200"
+                                 SelectionChanged="RecentListBox_SelectionChanged">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="5,3"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Bd" Background="Transparent" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource BgHighlight}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
                     </StackPanel>
                 </ScrollViewer>
             </Border>

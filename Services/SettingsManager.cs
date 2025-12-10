@@ -74,6 +74,9 @@ namespace TeleList.Services
         // Last used entity tracking
         [JsonPropertyName("last_used_entity_key")]
         public string LastUsedEntityKey { get; set; } = string.Empty;
+
+        [JsonPropertyName("recent_entities")]
+        public List<string> RecentEntities { get; set; } = new List<string>();
     }
 
     /// <summary>
