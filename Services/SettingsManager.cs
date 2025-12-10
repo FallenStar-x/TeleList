@@ -53,7 +53,7 @@ namespace TeleList.Services
         public string HotkeyPrev { get; set; } = "left";
 
         [JsonPropertyName("hotkey_mark")]
-        public string HotkeyMark { get; set; } = "page up";
+        public string HotkeyMark { get; set; } = "oem5";
 
         [JsonPropertyName("hotkey_reload")]
         public string HotkeyReload { get; set; } = "ctrl+r";
@@ -101,7 +101,7 @@ namespace TeleList.Services
                             settings.WindowGeometry ??= "1200x750";
                             settings.HotkeyNext ??= "right";
                             settings.HotkeyPrev ??= "left";
-                            settings.HotkeyMark ??= "page up";
+                            settings.HotkeyMark ??= "oem5";
                             settings.HotkeyReload ??= "ctrl+r";
                             settings.HotkeyUpdateIni ??= "ctrl+u";
                             settings.HotkeyClear ??= "ctrl+delete";

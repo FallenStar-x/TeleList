@@ -95,7 +95,7 @@ Default global hotkeys (configurable in the app):
 |--------|-------------|
 | Next Entity | Right Arrow |
 | Previous Entity | Left Arrow |
-| Toggle Mark | Page Up |
+| Toggle Mark | Backslash (\\) |
 | Reload File | Ctrl+R |
 | Update INI | Ctrl+U |
 | Clear Entities | Ctrl+Delete |
