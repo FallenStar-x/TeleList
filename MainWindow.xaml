@@ -19,7 +19,7 @@
             <Button Content="Load File" Style="{StaticResource DarkButton}" Click="LoadFile_Click" Margin="0,0,5,0"/>
             <Button Content="Reload" Style="{StaticResource SecondaryButton}" Click="ReloadFile_Click" Margin="0,0,5,0"/>
             <Button Content="Clear Entities" Style="{StaticResource SecondaryButton}" Click="ClearEntities_Click" Margin="0,0,5,0"/>
-            <Button Content="Clear Marks" Style="{StaticResource SecondaryButton}" Click="ClearMarks_Click" Margin="0,0,10,0"/>
+            <Button Content="Clear Skipped" Style="{StaticResource SecondaryButton}" Click="ClearMarks_Click" Margin="0,0,10,0"/>
 
             <CheckBox x:Name="AutoRefreshCheckBox"
                       Content="Auto-Refresh"
@@ -185,7 +185,7 @@
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="Mark Done:" Foreground="{StaticResource FgSecondary}" VerticalAlignment="Center"/>
+                            <TextBlock Text="Toggle Skip:" Foreground="{StaticResource FgSecondary}" VerticalAlignment="Center"/>
                             <Button x:Name="HotkeyMarkBtn" Grid.Column="1" Style="{StaticResource SecondaryButton}"
                                     Foreground="{StaticResource Accent}" Click="ConfigureHotkey_Click" Tag="HotkeyMark"/>
                         </Grid>
@@ -238,6 +238,7 @@
                       ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeader}"
                       CellStyle="{StaticResource DarkDataGridCell}"
                       RowStyle="{StaticResource DarkDataGridRow}"
+                      SelectionMode="Extended"
                       SelectionChanged="EntityGrid_SelectionChanged"
                       MouseDoubleClick="EntityGrid_DoubleClick"
                       MouseRightButtonUp="EntityGrid_RightClick"
@@ -248,7 +249,7 @@
                         <MenuItem Header="Copy Location" Click="CopyLocation_Click" Style="{StaticResource DarkMenuItem}"/>
                         <MenuItem Header="Copy All Info" Click="CopyAllInfo_Click" Style="{StaticResource DarkMenuItem}"/>
                         <Separator Background="{StaticResource BorderBrush}"/>
-                        <MenuItem Header="Toggle Mark (Red)" Click="ToggleMark_Click" Style="{StaticResource DarkMenuItem}"/>
+                        <MenuItem Header="Toggle Skip (Red)" Click="ToggleMark_Click" Style="{StaticResource DarkMenuItem}"/>
                         <Separator Background="{StaticResource BorderBrush}"/>
                         <MenuItem Header="Set as Reference" Click="UseSelected_Click" Style="{StaticResource DarkMenuItem}"/>
                         <MenuItem Header="Find Closest Entities" Click="FindClosest_Click" Style="{StaticResource DarkMenuItem}"/>
@@ -274,7 +275,7 @@
                                Text="Ready"
                                Style="{StaticResource MutedLabel}"/>
                     <TextBlock x:Name="MarkedCountLabel"
-                               Text="Marked: 0"
+                               Text="Skipped: 0"
                                Style="{StaticResource MutedLabel}"
                                Margin="20,0,0,0"/>
                 </StackPanel>

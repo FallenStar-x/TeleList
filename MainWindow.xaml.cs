@@ -120,7 +120,7 @@ namespace TeleList
             if (!SettingsManager.SaveSettings(_settings))
             {
                 var result = MessageBox.Show(
-                    "Could not save settings. Your marked items may be lost.\n\nClose anyway?",
+                    "Could not save settings. Your skipped items may be lost.\n\nClose anyway?",
                     "Warning",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
@@ -889,30 +889,51 @@ namespace TeleList
                 {
                     try
                     {
-                        if (EntityGrid.SelectedItem is not EntityViewModel selected)
+                        var selectedItems = EntityGrid.SelectedItems.Cast<EntityViewModel>().ToList();
+
+                        if (selectedItems.Count == 0)
                         {
-                            StatusLabel.Text = "No entity selected to mark";
+                            StatusLabel.Text = "No entity selected to skip";
                             return;
                         }
 
-                        var entityKey = selected.GetEntityKey();
-                        var displayName = string.IsNullOrEmpty(selected.EntityType)
-                            ? "Unknown"
-                            : (selected.EntityType.Length > 50
-                                ? selected.EntityType.Substring(0, 50) + "..."
-                                : selected.EntityType);
+                        int skippedCount = 0;
+                        int unskippedCount = 0;
 
-                        if (_markedEntities.Contains(entityKey))
+                        foreach (var selected in selectedItems)
                         {
-                            _markedEntities.Remove(entityKey);
-                            selected.IsMarked = false;
-                            StatusLabel.Text = $"Unmarked: {displayName}";
+                            var entityKey = selected.GetEntityKey();
+
+                            if (_markedEntities.Contains(entityKey))
+                            {
+                                _markedEntities.Remove(entityKey);
+                                selected.IsMarked = false;
+                                unskippedCount++;
+                            }
+                            else
+                            {
+                                _markedEntities.Add(entityKey);
+                                selected.IsMarked = true;
+                                skippedCount++;
+                            }
+                        }
+
+                        // Build status message
+                        if (selectedItems.Count == 1)
+                        {
+                            var displayName = string.IsNullOrEmpty(selectedItems[0].EntityType)
+                                ? "Unknown"
+                                : (selectedItems[0].EntityType.Length > 50
+                                    ? selectedItems[0].EntityType.Substring(0, 50) + "..."
+                                    : selectedItems[0].EntityType);
+                            StatusLabel.Text = skippedCount > 0 ? $"Skipped: {displayName}" : $"Unskipped: {displayName}";
                         }
                         else
                         {
-                            _markedEntities.Add(entityKey);
-                            selected.IsMarked = true;
-                            StatusLabel.Text = $"Marked: {displayName}";
+                            var parts = new List<string>();
+                            if (skippedCount > 0) parts.Add($"{skippedCount} skipped");
+                            if (unskippedCount > 0) parts.Add($"{unskippedCount} unskipped");
+                            StatusLabel.Text = string.Join(", ", parts);
                         }
 
                         UpdateMarkedCount();
@@ -920,12 +941,12 @@ namespace TeleList
                         _settings.MarkedEntities = _markedEntities.ToList();
                         SettingsManager.SaveSettings(_settings);
 
-                        // Force refresh the row
+                        // Force refresh the rows
                         EntityGrid.Items.Refresh();
                     }
                     catch (Exception ex)
                     {
-                        StatusLabel.Text = $"Mark error: {ex.Message}";
+                        StatusLabel.Text = $"Skip error: {ex.Message}";
                     }
                 });
             }
@@ -948,12 +969,12 @@ namespace TeleList
 
             EntityGrid.Items.Refresh();
             UpdateMarkedCount();
-            StatusLabel.Text = "All marks cleared";
+            StatusLabel.Text = "All skipped cleared";
         }
 
         private void UpdateMarkedCount()
         {
-            MarkedCountLabel.Text = $"Marked: {_markedEntities.Count}";
+            MarkedCountLabel.Text = $"Skipped: {_markedEntities.Count}";
         }
 
         #endregion

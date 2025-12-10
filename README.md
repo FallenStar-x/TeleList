@@ -10,14 +10,14 @@ TeleList works alongside Speeder to streamline the teleportation workflow:
 2. **Browse** entities with filtering, sorting, and search
 3. **Select** a target entity
 4. **Auto-update** INI file with coordinates for teleportation
-5. **Track** visited entities by marking them
+5. **Track** skipped entities (ones you couldn't reach)
 
 ## Features
 
 - **Entity Browsing**: View entities with type, location, and distance information
 - **Filtering & Sorting**: Search by name, filter by type, sort by various criteria
 - **Distance Calculation**: Set a reference entity and calculate distances from it
-- **Entity Marking**: Mark entities (displayed in red) to track visited locations
+- **Skip Tracking**: Mark entities as skipped (displayed in red) to track ones you couldn't reach
 - **INI Integration**: Automatically update teleport coordinates in INI files
 - **Global Hotkeys**: Navigate and mark entities without focusing the app
 - **Auto-Refresh**: Automatically reload when the entity file changes
@@ -95,7 +95,7 @@ Default global hotkeys (configurable in the app):
 |--------|-------------|
 | Next Entity | Right Arrow |
 | Previous Entity | Left Arrow |
-| Toggle Mark | Backslash (\\) |
+| Toggle Skip | Backslash (\\) |
 | Reload File | Ctrl+R |
 | Update INI | Ctrl+U |
 | Clear Entities | Ctrl+Delete |
