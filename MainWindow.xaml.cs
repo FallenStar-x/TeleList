@@ -648,81 +648,91 @@ namespace TeleList
 
         private void ApplyFilters()
         {
-            if (_entities.Count == 0)
+            try
             {
-                _filteredEntities.Clear();
-                UpdateCount();
-                return;
-            }
-
-            var filtered = _entities.AsEnumerable();
-
-            // Apply search filter
-            var searchText = SearchBox.Text?.ToLower().Trim() ?? "";
-            if (!string.IsNullOrEmpty(searchText))
-            {
-                filtered = filtered.Where(e => e.EntityType.ToLower().Contains(searchText));
-            }
-
-            // Apply type filter
-            var typeFilter = TypeFilterCombo.SelectedItem?.ToString() ?? "All Types";
-            if (typeFilter != "All Types")
-            {
-                filtered = filtered.Where(e => e.BaseType == typeFilter);
-            }
-
-            // Apply sorting
-            var sortOption = (SortCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Distance (Ascending)";
-            var reverse = sortOption.Contains("Descending") || sortOption.Contains("Z-A");
-
-            filtered = sortOption switch
-            {
-                var s when s.Contains("Entity Type") =>
-                    reverse ? filtered.OrderByDescending(e => e.EntityType.ToLower())
-                            : filtered.OrderBy(e => e.EntityType.ToLower()),
-
-                var s when s.Contains("Location X") =>
-                    reverse ? filtered.OrderByDescending(e => e.X) : filtered.OrderBy(e => e.X),
-
-                var s when s.Contains("Location Y") =>
-                    reverse ? filtered.OrderByDescending(e => e.Y) : filtered.OrderBy(e => e.Y),
-
-                var s when s.Contains("Location Z") =>
-                    reverse ? filtered.OrderByDescending(e => e.Z) : filtered.OrderBy(e => e.Z),
-
-                _ => _referenceEntity != null
-                    ? (reverse ? filtered.OrderByDescending(e => Entity.CalculateDistance(_referenceEntity, e))
-                               : filtered.OrderBy(e => Entity.CalculateDistance(_referenceEntity, e)))
-                    : (reverse ? filtered.OrderByDescending(e => e.Distance)
-                               : filtered.OrderBy(e => e.Distance))
-            };
-
-            // Update observable collection
-            _filteredEntities.Clear();
-            foreach (var entity in filtered)
-            {
-                var calcDist = _referenceEntity != null
-                    ? Entity.CalculateDistance(_referenceEntity, entity).ToString("F2")
-                    : "";
-
-                var entityKey = entity.GetEntityKey();
-
-                _filteredEntities.Add(new EntityViewModel
+                if (_entities.Count == 0)
                 {
-                    EntityType = entity.EntityType,
-                    BaseType = entity.BaseType,
-                    LocationStr = entity.LocationStr,
-                    X = entity.X,
-                    Y = entity.Y,
-                    Z = entity.Z,
-                    Distance = entity.Distance,
-                    CalcDistance = calcDist,
-                    IsMarked = _markedEntities.Contains(entityKey),
-                    IsLastUsed = entityKey == _settings.LastUsedEntityKey
-                });
-            }
+                    _filteredEntities.Clear();
+                    UpdateCount();
+                    return;
+                }
 
-            UpdateCount();
+                var filtered = _entities.AsEnumerable();
+
+                // Apply search filter (case-insensitive, culture-invariant)
+                var searchText = SearchBox.Text?.Trim() ?? "";
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    filtered = filtered.Where(e =>
+                        e.EntityType != null &&
+                        e.EntityType.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0);
+                }
+
+                // Apply type filter
+                var typeFilter = TypeFilterCombo.SelectedItem?.ToString() ?? "All Types";
+                if (typeFilter != "All Types")
+                {
+                    filtered = filtered.Where(e => e.BaseType == typeFilter);
+                }
+
+                // Apply sorting
+                var sortOption = (SortCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Distance (Ascending)";
+                var reverse = sortOption.Contains("Descending") || sortOption.Contains("Z-A");
+
+                filtered = sortOption switch
+                {
+                    var s when s.Contains("Entity Type") =>
+                        reverse ? filtered.OrderByDescending(e => e.EntityType ?? "", StringComparer.OrdinalIgnoreCase)
+                                : filtered.OrderBy(e => e.EntityType ?? "", StringComparer.OrdinalIgnoreCase),
+
+                    var s when s.Contains("Location X") =>
+                        reverse ? filtered.OrderByDescending(e => e.X) : filtered.OrderBy(e => e.X),
+
+                    var s when s.Contains("Location Y") =>
+                        reverse ? filtered.OrderByDescending(e => e.Y) : filtered.OrderBy(e => e.Y),
+
+                    var s when s.Contains("Location Z") =>
+                        reverse ? filtered.OrderByDescending(e => e.Z) : filtered.OrderBy(e => e.Z),
+
+                    _ => _referenceEntity != null
+                        ? (reverse ? filtered.OrderByDescending(e => Entity.CalculateDistance(_referenceEntity, e))
+                                   : filtered.OrderBy(e => Entity.CalculateDistance(_referenceEntity, e)))
+                        : (reverse ? filtered.OrderByDescending(e => e.Distance)
+                                   : filtered.OrderBy(e => e.Distance))
+                };
+
+                // Update observable collection
+                _filteredEntities.Clear();
+                foreach (var entity in filtered)
+                {
+                    var calcDist = _referenceEntity != null
+                        ? Entity.CalculateDistance(_referenceEntity, entity).ToString("F2")
+                        : "";
+
+                    var entityKey = entity.GetEntityKey();
+
+                    _filteredEntities.Add(new EntityViewModel
+                    {
+                        EntityType = entity.EntityType ?? "",
+                        BaseType = entity.BaseType ?? "",
+                        LocationStr = entity.LocationStr ?? "",
+                        X = entity.X,
+                        Y = entity.Y,
+                        Z = entity.Z,
+                        Distance = entity.Distance,
+                        CalcDistance = calcDist,
+                        IsMarked = _markedEntities.Contains(entityKey),
+                        IsLastUsed = entityKey == _settings.LastUsedEntityKey
+                    });
+                }
+
+                UpdateCount();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ApplyFilters error: {ex.Message}");
+                StatusLabel.Text = "Error filtering entities";
+            }
         }
 
         private void UpdateCount()

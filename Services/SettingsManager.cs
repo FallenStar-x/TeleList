@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -153,7 +154,8 @@ namespace TeleList.Services
 
                 var options = new JsonSerializerOptions
                 {
-                    WriteIndented = true
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping // Preserve non-ASCII chars (Chinese, Japanese, etc.)
                 };
 
                 // Write to temp file first, then rename for atomic write
@@ -161,12 +163,8 @@ namespace TeleList.Services
                 var json = JsonSerializer.Serialize(settings, options);
                 File.WriteAllText(tempFile, json);
 
-                // Atomic rename
-                if (File.Exists(SettingsFile))
-                {
-                    File.Delete(SettingsFile);
-                }
-                File.Move(tempFile, SettingsFile);
+                // Atomic rename (overwrite if exists)
+                File.Move(tempFile, SettingsFile, overwrite: true);
 
                 return true;
             }

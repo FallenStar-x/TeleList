@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -45,7 +46,7 @@ namespace TeleList.Services
                 var updatesMade = new System.Collections.Generic.List<string>();
 
                 // Update X coordinate
-                var newX = x.ToString("F6");
+                var newX = x.ToString("F6", CultureInfo.InvariantCulture);
                 var matchX = TeleportXPattern.Match(content);
                 if (matchX.Success)
                 {
@@ -55,7 +56,7 @@ namespace TeleList.Services
                 }
 
                 // Update Y coordinate
-                var newY = y.ToString("F6");
+                var newY = y.ToString("F6", CultureInfo.InvariantCulture);
                 var matchY = TeleportYPattern.Match(content);
                 if (matchY.Success)
                 {
@@ -65,7 +66,7 @@ namespace TeleList.Services
                 }
 
                 // Update Z coordinate
-                var newZ = z.ToString("F6");
+                var newZ = z.ToString("F6", CultureInfo.InvariantCulture);
                 var matchZ = TeleportZPattern.Match(content);
                 if (matchZ.Success)
                 {
@@ -116,9 +117,9 @@ namespace TeleList.Services
 
                 if (xMatch.Success && yMatch.Success && zMatch.Success)
                 {
-                    if (double.TryParse(xMatch.Groups[2].Value, out var x) &&
-                        double.TryParse(yMatch.Groups[2].Value, out var y) &&
-                        double.TryParse(zMatch.Groups[2].Value, out var z))
+                    if (double.TryParse(xMatch.Groups[2].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var x) &&
+                        double.TryParse(yMatch.Groups[2].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var y) &&
+                        double.TryParse(zMatch.Groups[2].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var z))
                     {
                         return (x, y, z);
                     }
